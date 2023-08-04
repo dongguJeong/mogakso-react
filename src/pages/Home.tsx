@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect,useState } from 'react';
 import Layout from '../components/Layout';
 import { styled } from 'styled-components';
 import Chart from '../components/Chart';
+import SearchBBar from '../components/SearchBar';
+import serverURL from "../asset/Url";
 
 import { IData } from '../components/Chart';
 
@@ -12,44 +14,44 @@ const Wrapper = styled.div`
   padding-bottom : 20px;
   
 `
-const LargeSearchBar = styled.input`
-  width : 100%;
-  height : 50px;
-  border-radius : 30px;
-  padding-left : 15px;
-  margin-bottom : 30px;
-  border : 2px solid var(--iconColor);
 
 
-  &:focus{
-    outline : none;
-  }
+const chartCrawlingURL = `http://${serverURL}/v3/chartjson`;
 
-  &::placeholder{
-    font-size : 15px; 
-    font-weight : 500;
-  }
+function Search() {
 
-`;
-
-
-interface songData{
-  songData : IData[];
-}
-
-function Search({songData} : songData ) {
   
+  const [chartData, setChartData] = useState<IData[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await (await fetch(chartCrawlingURL,
+          {
+            method: "GET",
+          }
+        )).json();
+        
+        console.log(response);
+        setChartData(response);
+
+      }catch(err){
+        console.log("실패!");
+        console.log(err);
+      }
+    };
+    fetchData();
+
+    }, []);
   
 
   return (
     <Layout>
    <Wrapper>
 
-      <form>
-        <LargeSearchBar placeholder='아티스트/노래 검색'/>
-      </form>  
+        <SearchBBar small={false} />
 
-        <Chart title="인기 차트" btnTitle ="커버곡 만들러 가기" data = {songData}/>
+        <Chart title="인기 차트" btnTitle ="커버곡 만들러 가기"  data={chartData} />
       </Wrapper>
       </Layout>
   )

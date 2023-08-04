@@ -2,9 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { createGlobalStyle } from 'styled-components';
+import { CookiesProvider } from 'react-cookie';
 
 
-const gbStyle = createGlobalStyle`
+const GbStyle = createGlobalStyle`
 
 
 html, body, div, span, applet, object, iframe,
@@ -92,8 +93,8 @@ table {
 `
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-    <>
-    <gbStyle/>
-    <App />
-    </>
+    <CookiesProvider>
+		<GbStyle/>
+		<App />
+    </CookiesProvider>
 );

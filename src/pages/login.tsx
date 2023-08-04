@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useRecoilState } from "recoil";
 import styled from "styled-components";
 
 
@@ -37,6 +38,7 @@ export default function Redirect(){
 
     const movePage = useNavigate();
 
+
     const kakaoLogin = async(code : string | string[] | undefined) => {
         try {
           const res = await axios({
@@ -45,7 +47,8 @@ export default function Redirect(){
             withCredentials : true,
           })
 
-          console.log("생성 : ", res);          
+
+          console.log("생성 : ", res);   
           movePage("/");
           
         } catch (err) {

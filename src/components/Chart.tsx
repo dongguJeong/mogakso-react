@@ -124,9 +124,12 @@ const SongRank = styled.div`
 `
 
 export interface IData{
+  SongId : string,
   title : string,
-  singer : string,
-  img_url : string,
+  imgUrl : string ,
+  artist : string,
+  albumId : number,
+  genre : string,
 }
 
 export interface IChart {
@@ -136,7 +139,12 @@ export interface IChart {
 }
 
 
-export default function Chart( {title,btnTitle}: IChart  ){
+const BlackSpace = styled.div`
+  width : 90px;
+  background-color : transparent;
+`
+
+export default function Chart( {title,btnTitle,data}: IChart  ){
   
   
     return(
@@ -148,19 +156,19 @@ export default function Chart( {title,btnTitle}: IChart  ){
             <span>순위</span> <span>제목</span> <span>가수</span> 
           </ChartHeader>
           <ChartBox>
-            { [1,2,3,4,5].map((song ,index : number) => <SongContainer key={index}>
+            { data.map((song ,index : number) => <SongContainer key={index}>
               <SongColumn>
                 <SongRank>{index + 1}</SongRank>
-                <SongImg bgpath = ""/>
+                {song.imgUrl ? <SongImg bgpath = {song.imgUrl} /> : <BlackSpace></BlackSpace> }
                   <SongDetail>
-                    <SongTitle>제목</SongTitle>
-                    <Singer>가수</Singer>
+                    <SongTitle>{song.title}</SongTitle>
+                    <Singer>{song.artist}</Singer>
                   </SongDetail>
               </SongColumn>
 
               <SongColumn>
                 <SongButton>
-                  <Link to={`/search/아무노래`} > {btnTitle} </Link>
+                  <Link to={`/detail/{song.title}`} > {btnTitle} </Link>
                 </SongButton>
               </SongColumn>
             </SongContainer>)}

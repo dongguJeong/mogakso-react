@@ -16,7 +16,7 @@
     },
     "include": [
       "./src"
-    ],
+,  "Recoil.tsx"    ],
     "exclude": [
       "node_modules",
       "build"

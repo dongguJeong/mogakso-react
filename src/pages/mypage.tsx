@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import Layout from '../components/Layout';
 import styled from 'styled-components';
 import { AnimatePresence, motion } from 'framer-motion';
-import { genreDB,IGenre } from '../components/GenreDB';
 
 import "../styles/global.css";
+import { useNavigate } from 'react-router-dom';
 
 const Wrapper = styled.div`
   width : 80%;
@@ -249,35 +249,17 @@ const loginVars = {
 
 function MyPage() {
 
+  const movePage = useNavigate();
 
   const [edit, setEdit] = useState(false);
   const clickEdit = () => {
     setEdit((cur) => !cur);
   }
 
-  const [ genre, setGenre] = useState<string[]>([]);
 
-
-  const clickGenre = ( g : string) => {
-
-    const index = genre.findIndex((i) => i === g);
-    console.log(index);
-    if( index === -1)
-      {
-        setGenre([...genre , g]);
-      }
-
-    else{
-      setGenre([ ...genre.slice(0,index), ...genre.slice(index+1) ] );
-    }  
-  }
-
-
-  return <Layout>
+  return (<Layout>
     
     <Wrapper>
-
-      
       <Profile>
         <Square/>
         <ProfileCol>
@@ -295,64 +277,20 @@ function MyPage() {
             
             <GenreEdit>
               <div>선호장르</div>
-              <div onClick={clickEdit}>수정</div>
             </GenreEdit>
       
 
-            <GenreList>
-              <Genre>
-                {genre.map ((g,i)=> 
-                
-                  <li key={i}>
-                    <svg xmlns="http://www.w3.org/2000/svg" height="17px" viewBox="0 0 384 512">
-                      <path d="M96 96V256c0 53 43 96 96 96s96-43 96-96H208c-8.8 0-16-7.2-16-16s7.2-16 16-16h80V192H208c-8.8 0-16-7.2-16-16s7.2-16 16-16h80V128H208c-8.8 0-16-7.2-16-16s7.2-16 16-16h80c0-53-43-96-96-96S96 43 96 96zM320 240v16c0 70.7-57.3 128-128 128s-128-57.3-128-128V216c0-13.3-10.7-24-24-24s-24 10.7-24 24v40c0 89.1 66.2 162.7 152 174.4V464H120c-13.3 0-24 10.7-24 24s10.7 24 24 24h72 72c13.3 0 24-10.7 24-24s-10.7-24-24-24H216V430.4c85.8-11.7 152-85.3 152-174.4V216c0-13.3-10.7-24-24-24s-24 10.7-24 24v24z"/>
-                    </svg> 
-
-                     {g}
-                     
-                  </li>
-               )} 
-               </Genre>
-            </GenreList>
+            
           </GenreContainer>
         </ProfileCol>   
       </Profile>
+
+      </Wrapper>
       
-
-        <AnimatePresence>
-          { edit &&
-          <PreferBox variants={loginVars} initial = "invisible" animate="visible" exit ="exit">
-            <P_container>
-              <P_header>
-                <P_header_title>
-                  <span>선호장르를 선택해주세요 (4개)</span>
-                </P_header_title>
-                <SF_closeBtn onClick={clickEdit}>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill='white'  viewBox="0 0 384 512"><path d="M376.6 84.5c11.3-13.6 9.5-33.8-4.1-45.1s-33.8-9.5-45.1 4.1L192 206 56.6 43.5C45.3 29.9 25.1 28.1 11.5 39.4S-3.9 70.9 7.4 84.5L150.3 256 7.4 427.5c-11.3 13.6-9.5 33.8 4.1 45.1s33.8 9.5 45.1-4.1L192 306 327.4 468.5c11.3 13.6 31.5 15.4 45.1 4.1s15.4-31.5 4.1-45.1L233.7 256 376.6 84.5z"/>
-                            </svg>
-                </SF_closeBtn>
-              </P_header>
-              
-              <P_body>
-                {genreDB.map((item) =>
-                  <P_item_container key={item.genre} bgPath ={item.img_url || ""}  onClick={() =>clickGenre(item.genre)} >
-                    <div>{item.genre}</div>
-                  </P_item_container>
-                )}
-
-              </P_body>
-            </P_container>
-          </PreferBox>
-          }
-        </AnimatePresence>
-
-
-
-
-        </Wrapper>
-
+      
+    
   </Layout>
-   
+  )
   
 }
 

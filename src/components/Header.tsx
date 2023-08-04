@@ -4,6 +4,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {KAKAO_AUTH_URL} from "../components/KaKao";
 
 import "../styles/global.css";
+import { getCookies, removeCookie, setCookies } from '../Cookies';
+import { useNavigate } from 'react-router-dom';
 
 
 const Wrapper = styled.div`
@@ -62,7 +64,6 @@ const LoginBtn = styled.div`
   border-radius : 5px;
   font-size : 15px;
   border : 1px solid white;
-
 
 `
 
@@ -198,8 +199,6 @@ const CloseBtn = styled.div`
   cursor : pointer;
 
   svg{
-  
-  
   border-radius : 50%;
   width : 15px;
   height : 15px;
@@ -208,13 +207,24 @@ const CloseBtn = styled.div`
 `
 
 
-function RealMainHeader() {
+function MainHeader() {
 
+
+
+  const movePage = useNavigate();
   const [click, setClick] = useState(false);
 
   const clickLogin = () =>{
     setClick((cur) => !(cur));
   }
+
+  const cookies  = getCookies("accessToken");
+  
+  const clickLogout = () => {
+    removeCookie("accessToken");
+    movePage("/");
+  }
+
 
   return <> 
 
@@ -225,7 +235,7 @@ function RealMainHeader() {
           </LinkContainer>
         </Column>
         <Column >
-          <LoginBtn onClick={clickLogin}>로그인</LoginBtn>
+          <LoginBtn onClick={cookies ? clickLogout: clickLogin}>{cookies ? "로그아웃" : "로그인"}</LoginBtn>
         </Column>
       </Container>
 
@@ -233,8 +243,6 @@ function RealMainHeader() {
         { 
           click && 
           <LoginContainer variants={loginVars} initial = "invisible" animate="visible" exit ="exit">
-
-            
 
             <LoginInnerContainer >
 
@@ -269,4 +277,4 @@ function RealMainHeader() {
   
 }
 
-export default RealMainHeader;
+export default MainHeader;
