@@ -10,20 +10,39 @@ const chartCrawlingURL = `http://${serverURL}/v3/chartjson`;
 
 const Wrapper = styled.div`
     display: flex;
-    justify-content: center;
+    align-items: center;
     padding-top : 50px;
+    flex-direction : column;
     
 `
 
-const Grid = styled.div`
-   
+const Header = styled.div`
     
+    text-align : center;
+    width : 200px;
+    height : 70px;
+    font-size  : 17px;
+
+    
+    
+`;
+
+const HeaderBtn = styled.div<{bgcolor : string}>`
+    background-color : ${ prop => prop.bgcolor};
+    border-radius : 7px;
+    text-align : center;
+    padding : 5px 10px;
+    margin-top : 10px;
+`
+
+
+const Grid = styled.div`
     display : grid;
-    grid-template-columns : repeat(6, 130px);
+    grid-template-columns : repeat(var(--gridNum), 130px);
     grid-gap : 45px;
 `
 
-const ChartContainer = styled.div<{bgpath : string ; isClicked : boolean}>`
+const ChartContainer = styled.div<{bgpath : string ; isclicked : string | undefined}>`
 
     border-radius : 10px;
     height : 130px;
@@ -36,7 +55,7 @@ const ChartContainer = styled.div<{bgpath : string ; isClicked : boolean}>`
     align-items : center;
     justify-content : center;
 
-    background-color: ${props => (props.isClicked ? "rgba(0,0,0,0.5)" : 'transparent')};
+    background-color: ${props => (props.isclicked ? "rgba(0,0,0,0.5)" : 'transparent')};
     background-blend-mode: multiply;
 
     
@@ -62,14 +81,10 @@ interface IClick {
 }
 
 
-
-
 function Prefer(){
 
     const [chartData, setChartData] = useState<IData[]>([]);
-
-
-
+    
     useEffect(() => {
         const fetchData = async () => {
           try {
@@ -91,6 +106,7 @@ function Prefer(){
     
         }, []);
 
+    const [count ,setCount] = useState(0);
     const [clicked, setClicked] = useState<IClick[]>([]);
 
         const clickPrefer = ( {title ,genre ,artist} : IClick) => {
@@ -98,26 +114,49 @@ function Prefer(){
             
             const index = clicked.findIndex((i) => i.title === title);
             
-            if( index === -1)
+            if( index === -1) //추가
             {
+                if(count === 10){
+                    return ;
+                }
+
                 const temp  = {title,genre,artist};
                 setClicked([...clicked , temp]);
+                setCount((cur) => cur+1);
+
             }
 
-            else{
-            setClicked([ ...clicked.slice(0,index), ...clicked.slice(index+1) ] );
+            else{ // 삭제
+                setClicked([ ...clicked.slice(0,index), ...clicked.slice(index+1) ] );
+                setCount((cur) => cur-1);
             }  
-
             console.log(clicked);
         }
 
+        const handleSubmit = () => {
+            alert("제출했습니다");
+        }
 
     return(
         <Layout>
             <Wrapper>
+                <Header>
+
+                    <span> 선택한 곡  개수 {count} / 10 </span>
+                    
+                    <HeaderBtn bgcolor = {count === 10 ? "rgba(255, 165, 0,1)" : "rgba(255, 165, 0, 0.5)" }
+                                style = {{cursor : count === 10 ?  "pointer" :  "not-allowed"}}
+                                onClick={count === 10 ? handleSubmit : undefined}
+                    >
+                                
+                        제출
+                    </HeaderBtn> 
+
+                    { count === 10 &&  <span>10개 모두 선택했습니다</span>}
+                </Header>
                 <Grid>
                 {chartData?.map((song,i) => (
-                    <ChartContainer  isClicked={clicked.some((item) => item.title === song.title)} key={i} bgpath={song.imgUrl} onClick={() =>clickPrefer({title : song.title, genre : song.genre, artist : song.artist} )}>
+                    <ChartContainer  isclicked={clicked.some((item) => item.title === song.title) ? "true" : undefined} key={i} bgpath={song.imgUrl} onClick={() =>clickPrefer({title : song.title, genre : song.genre, artist : song.artist} )}>
                        
                        <SongTitle>{song.title.length <= 20 ? song.title : song.title.slice(0,20) + '...' }</SongTitle>
                        

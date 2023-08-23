@@ -1,69 +1,82 @@
-import React, { useState, useRef,useEffect } from "react";
-import Layout from "../components/Layout";
+import React, { useState, useEffect, useRef } from 'react';
 
- const AudioRecorder = () => {
-      const [isRecording, setIsRecording] = useState(false);
-      const mediaRecorderRef = useRef(null);
-      const audioChunksRef = useRef([]);
-    
-      const startRecording = () => {
-        const constraints = { audio: true };
+function Singing() {
+  const [recording, setRecording] = useState(false);
+  const [clips, setClips] = useState([]);
+  const [count, setCount] = useState(1);
+  const [chunks, setChunks] = useState([]);
 
-        
-        navigator.mediaDevices.getUserMedia(constraints)
-            .then((stream) => {
-                const mediaRecorder = new MediaRecorder(stream);
-                mediaRecorder.ondataavailable = handleDataAvailable;
-                mediaRecorder.onstop = handleStop;
-                mediaRecorderRef.current = mediaRecorder;
-                setIsRecording(true);
-                })
-                .catch((error) => {
-                    console.error("Error accessing the microphone:", error);
-                });
-            };
-    
-      const stopRecording = () => {
-        mediaRecorderRef.current.stop();
-        setIsRecording(false);
-      };
-    
-      const handleDataAvailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-    
-      const handleStop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        // audioBlob을 서버로 업로드하거나 원하는 작업을 수행할 수 있습니다.
-        // 여기서는 간단하게 오디오 재생을 위해 URL을 생성합니다.
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audioElement = new Audio(audioUrl);
-        audioElement.play();
-        audioChunksRef.current = [];
+  const mediaRecorderRef = useRef(null);
+
+  useEffect(() => {
+    if (navigator.mediaDevices.getUserMedia) {
+      const constraint = { audio: true };
+
+      const onSuccess = (stream) => {
+        const mediaRecorder = new MediaRecorder(stream);
+        mediaRecorderRef.current = mediaRecorder;
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) {
+            setChunks((prev) => [...prev, e.data]);
+          }
+        };
       };
 
-      return { isRecording, startRecording, stopRecording };
+      const onError = (err) => {
+        console.log("오류 발생: " + err);
+      };
 
-    };
+      //설정을 한 번만
+      navigator.mediaDevices.getUserMedia(constraint).then(onSuccess, onError);
+    } else {
+      console.log("getUserMedia를 지원하지 않는 브라우저입니다");
+    }
+  }, []); // Empty dependency array, so this effect runs once on mount
+          
 
-export default function Singing() {
+  const handleStartRecording = () => {
+    setChunks(() => []); 
+    mediaRecorderRef.current.start();
+    setRecording(true);
+  };
 
-    const { isRecording, startRecording, stopRecording } = AudioRecorder();
+  const handleStopRecording = () => {
+    mediaRecorderRef.current.stop();
+    setRecording(() => false);
+    handleClipSave();
+  };
 
-   
-    return (
-        <Layout>
-            <div>나는 싱잉페이지</div>
-          {isRecording ? (
-            <button onClick={stopRecording}>Stop Recording</button>
-          ) : (
-            <button onClick={startRecording}>Start Recording</button>
-          )}
-        </Layout>
-      );
-    
-    
+  const handleClipSave = () => {
+    const clipName = `${count}번 클립`;
+    setCount((prev) => prev + 1);
+    const blob = new Blob(chunks, { type: 'audio/ogg; codecs=opus' });
+    setChunks([]);
+    const audioURL = window.URL.createObjectURL(blob);
+    setClips((prev) => [...prev, { clipName, audioURL }]);
+  };
 
+  return (
+    <div>
+      <span>녹음 클립들</span>
+      <button onClick={handleStartRecording} disabled={recording}>
+        녹음시작
+      </button>
+      <button onClick={handleStopRecording} disabled={!recording}>
+        녹음종료
+      </button>
+      
+
+      <section>
+        {clips.map((clip, i) => (
+          <div key={i}>
+            <h1>{clip.clipName}</h1>
+            <audio controls src={clip.audioURL}></audio>
+          </div>
+        ))}
+      </section>
+    </div>
+  );
 }
+
+export default Singing;
