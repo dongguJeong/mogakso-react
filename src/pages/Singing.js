@@ -31,7 +31,7 @@ function Singing() {
     } else {
       console.log("getUserMedia를 지원하지 않는 브라우저입니다");
     }
-  }, []); // Empty dependency array, so this effect runs once on mount
+  }, []);
 
   const handleStartRecording = () => {
     setChunks([]); // Reset chunks
@@ -44,7 +44,7 @@ function Singing() {
     setRecording(false);
   };
 
-  const handleClipSave = () => {
+  const saveClip = () => {
     const clipName = `${count}번 클립`;
     setCount((prev) => prev + 1);
     const blob = new Blob(chunks, { type: 'audio/ogg; codecs=opus' });
@@ -52,6 +52,12 @@ function Singing() {
     const audioURL = window.URL.createObjectURL(blob);
     setClips((prev) => [...prev, { clipName, audioURL }]);
   };
+
+  useEffect(() => {
+    if (chunks.length > 0) {
+      saveClip();
+    }
+  }, [chunks]);
 
   return (
     <div>
@@ -61,9 +67,6 @@ function Singing() {
       </button>
       <button onClick={handleStopRecording} disabled={!recording}>
         녹음종료
-      </button>
-      <button onClick={handleClipSave} disabled={chunks.length === 0}>
-        클립 저장
       </button>
 
       <section>
