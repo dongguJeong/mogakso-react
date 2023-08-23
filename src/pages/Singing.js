@@ -27,24 +27,21 @@ function Singing() {
         console.log("오류 발생: " + err);
       };
 
-      //설정을 한 번만
       navigator.mediaDevices.getUserMedia(constraint).then(onSuccess, onError);
     } else {
       console.log("getUserMedia를 지원하지 않는 브라우저입니다");
     }
   }, []); // Empty dependency array, so this effect runs once on mount
-          
 
   const handleStartRecording = () => {
-    setChunks(() => []); 
+    setChunks([]); // Reset chunks
     mediaRecorderRef.current.start();
     setRecording(true);
   };
 
   const handleStopRecording = () => {
     mediaRecorderRef.current.stop();
-    setRecording(() => false);
-    handleClipSave();
+    setRecording(false);
   };
 
   const handleClipSave = () => {
@@ -65,7 +62,9 @@ function Singing() {
       <button onClick={handleStopRecording} disabled={!recording}>
         녹음종료
       </button>
-      
+      <button onClick={handleClipSave} disabled={chunks.length === 0}>
+        클립 저장
+      </button>
 
       <section>
         {clips.map((clip, i) => (
